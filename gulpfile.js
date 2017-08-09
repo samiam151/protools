@@ -18,6 +18,9 @@ gulp.task('build-js', function () {
         .transform(babelify, {
             presets: ["env"]
         })
+        .on("error", (error) => {
+            console.log(error);
+        })
         .bundle()
         .pipe(source('bundle.js'))
         .pipe(gulp.dest('./public/js'));
@@ -30,6 +33,7 @@ gulp.task('browsersync', function(){
 
 gulp.task("watch", ["build-css", "build-js"], () => {
     gulp.watch("./js/**/*.js", ["build-js"]);
+    gulp.watch("./js/*.js", ["build-js"]);
     gulp.watch("./scss/**/*.scss", ["build-css"]);
 });
 
