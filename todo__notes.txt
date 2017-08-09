@@ -1,0 +1,14 @@
+Todo
+==================
+Audio visualizer
+Command playback
+Waiting screen while audio is loading
+Templating system
+
+Partial rendering/ loading?
+
+
+Notes
+=====================
+Visualizing Audio
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API 

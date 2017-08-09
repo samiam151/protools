@@ -61,7 +61,7 @@ function startBrowserSync(){
     var options = {
         proxy: 'localhost:5775',
         port: 4775,
-        files: ['**/*.*', "!.gitignore"],
+        files: ['./css/styles.css', "./js/bundle.js", "!.gitignore"],
         ghostMode: {
             click: true,
             scroll: true,

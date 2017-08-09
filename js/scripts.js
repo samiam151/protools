@@ -17,14 +17,13 @@ function init(){
         return getStem(stem);
     });
 
+    // Load the sound files for this TrackList
     Promise.all(stems).then(soundRequests => {
         console.log("Loaded...")
-        
+        // 
         let sounds = soundRequests.map(sound => {
             SoundBank.addSound(sound.data);
             initialTrackList.addTrack(new Channel(CONTEXT, sound.data));
-
-            console.log(typeof sound.data);
         });
 
         console.log(initialTrackList);
