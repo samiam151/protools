@@ -1,3 +1,7 @@
+/// @ts-check
+// Parent Route: "/stem"
+// Route handler for gettin audio stems
+
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");

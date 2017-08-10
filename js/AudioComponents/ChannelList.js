@@ -1,6 +1,6 @@
 import { CONTEXT } from "./Context";
 
-export class TrackList {
+export class ChannelList {
     constructor(initialTracks = null){
         this.tracks = initialTracks ? initialTracks : [];
     }
@@ -15,5 +15,9 @@ export class TrackList {
             channel.startAtTime(currentTime);
             console.log(currentTime);
         });
+    }
+
+    renderTracks() {
+        this.tracks.forEach(track => track.renderTemplate());
     }
 }

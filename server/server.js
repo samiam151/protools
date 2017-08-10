@@ -8,14 +8,14 @@ const PORT = 5775
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 
-// Middleware
+// Global Middleware
 app.use(compression());
 app.use(helmet());
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(express.static("public"));
 
-// Routes
+// Global Routes
 app.use("/", Routes.home);
 app.use("/stem", Routes.stem);
 

@@ -31,9 +31,9 @@ gulp.task('browsersync', function(){
 });
 
 
-gulp.task("watch", ["build-css", "build-js"], () => {
+gulp.task("watch", function(){
     gulp.watch("./js/**/*.js", ["build-js"]);
-    gulp.watch("./js/*.js", ["build-js"]);
+    // gulp.watch("./public/js/*.js", ["build-js"]);
     gulp.watch("./scss/**/*.scss", ["build-css"]);
 });
 
@@ -61,7 +61,7 @@ function startBrowserSync(){
     var options = {
         proxy: 'localhost:5775',
         port: 4775,
-        files: ['./css/styles.css', "./js/bundle.js", "!.gitignore"],
+        files: ['./public/css/styles.css', "./public/js/bundle.js", "!.gitignore"],
         ghostMode: {
             click: true,
             scroll: true,

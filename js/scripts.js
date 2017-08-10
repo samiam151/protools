@@ -3,34 +3,39 @@ import { CONTEXT } from "./AudioComponents/Context";
 import { Channel } from "./AudioComponents/Channel";
 import { Stems } from "./Helpers/Stems";
 import { SoundBank } from "./AudioComponents/SoundBank";
-import { TrackList } from "./AudioComponents/TrackList";
+import { ChannelList } from "./AudioComponents/ChannelList";
 
 "use strict";
 
 window.onload = function(){
     init();
+    
 }
 
 function init(){
-    let initialTrackList = new TrackList();
+    let initialChannelList = new ChannelList();
     let stems = Stems.map(stem => {
         return getStem(stem);
     });
 
-    // Load the sound files for this TrackList
+    // Load the sound files for this ChannelList
     Promise.all(stems).then(soundRequests => {
         console.log("Loaded...")
         // 
         let sounds = soundRequests.map(sound => {
+            console.log(sound);
+            let soundName = sound.request.responseURL.split(/_/)[1];
             SoundBank.addSound(sound.data);
-            initialTrackList.addTrack(new Channel(CONTEXT, sound.data));
+            initialChannelList.addTrack(new Channel(CONTEXT, sound.data, soundName));
         });
 
-        console.log(initialTrackList);
+        initialChannelList.renderTracks();
+
+        console.log(initialChannelList);
         
     }).then(() => {
         console.log("Rendered...")
-        initialTrackList.startTracks();
+        initialChannelList.startTracks();
     });
 }
 
@@ -40,3 +45,4 @@ function getStem(stem){
         responseType: "arraybuffer"
     });
 }
+
