@@ -1,6 +1,6 @@
 import axios from "axios";
 import { CONTEXT } from "./AudioComponents/Context";
-import { Channel } from "./AudioComponents/Channel";
+import { AudioChannel } from "./AudioComponents/AudioChannel";
 import { Stems } from "./Helpers/Stems";
 import { SoundBank } from "./AudioComponents/SoundBank";
 import { ChannelList } from "./AudioComponents/ChannelList";
@@ -23,13 +23,12 @@ function init(){
         console.log("Loaded...")
         // 
         let sounds = soundRequests.map(sound => {
-            console.log(sound);
-            let soundName = sound.request.responseURL.split(/_/)[1];
-            SoundBank.addSound(sound.data);
-            initialChannelList.addTrack(new Channel(CONTEXT, sound.data, soundName));
+            let soundName = sound['request']['responseURL'].split(/_/)[1];
+            SoundBank['addSound'](sound.data);
+            initialChannelList.addTrack(new AudioChannel(CONTEXT, sound.data, soundName));
         });
 
-        initialChannelList.renderTracks();
+        // initialChannelList.renderTracks();
 
         console.log(initialChannelList);
         

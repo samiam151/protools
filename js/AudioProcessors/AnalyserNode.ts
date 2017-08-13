@@ -1,6 +1,8 @@
 import { CONTEXT } from "../AudioComponents/Context";
 
-export class AnalyserNode {
+export class PTAnalyserNode {
+    public node: AnalyserNode
+
     constructor() {
         this.node = CONTEXT.createAnalyser();
     }

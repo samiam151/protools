@@ -1,5 +1,5 @@
-export const SoundBank = (function(){
-     var obj = {};
+export const SoundBank: object = (function(){
+    var obj = {};
     var allTracks = [];
 
      Object.defineProperty(obj, "sounds", {

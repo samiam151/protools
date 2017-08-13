@@ -23,9 +23,10 @@ html {
 .channel--container .channel {
   min-height: 80vh;
   max-height: 80vh;
-  width: 3.75em;
-  margin: 0 6px;
+  width: 2.75em;
+  margin: 0 3px;
   border-radius: 3px;
+  border: 2px solid #202020;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -39,11 +40,18 @@ html {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  background-color: #eee; }
+  background: -webkit-gradient(linear, left top, left bottom, from(#777), to(#5f5f5f));
+  background: linear-gradient(180deg, #777, #5f5f5f); }
   .channel--container .channel p.channel--trackName {
     word-break: break-all;
     color: black;
     text-align: center;
     font-size: 12px;
     padding: 3px;
-    height: 3em; }
+    max-height: 3em;
+    overflow: hidden; }
+  .channel--container .channel .channel--gain1 .channel--gain1-range {
+    -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
+    position: relative;
+    top: -60px; }

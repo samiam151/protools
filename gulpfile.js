@@ -4,6 +4,7 @@ var $ = require('gulp-load-plugins')({lazy: true});
 const babelify = require("babelify");
 const browserify = require("browserify");
 var source = require('vinyl-source-stream');
+const tsify = require("tsify");
 
 gulp.task('build-css', function(){
     log('Building CSS...');
@@ -14,13 +15,14 @@ gulp.task('build-css', function(){
 });
 
 gulp.task('build-js', function () {
-    return browserify({entries: './js/scripts.js', debug: true})
+    return browserify({entries: './js/scripts.ts', debug: true})
         .transform(babelify, {
             presets: ["env"]
         })
         .on("error", (error) => {
             console.log(error);
         })
+        .plugin(tsify)
         .bundle()
         .pipe(source('bundle.js'))
         .pipe(gulp.dest('./public/js'));
@@ -32,7 +34,7 @@ gulp.task('browsersync', function(){
 
 
 gulp.task("watch", function(){
-    gulp.watch("./js/**/*.js", ["build-js"]);
+    gulp.watch("./js/**/*.ts", ["build-js"]);
     // gulp.watch("./public/js/*.js", ["build-js"]);
     gulp.watch("./scss/**/*.scss", ["build-css"]);
 });

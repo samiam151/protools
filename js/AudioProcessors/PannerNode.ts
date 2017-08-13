@@ -1,8 +1,9 @@
 import { CONTEXT } from "../AudioComponents/Context";
 
-export class PannerNode {
+export class PTPannerNode {
+    public node: PannerNode;
+
     constructor(){
-        console.log(CONTEXT);
         this.node = CONTEXT.createPanner();
     }
 }

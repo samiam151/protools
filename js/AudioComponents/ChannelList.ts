@@ -1,8 +1,10 @@
 import { CONTEXT } from "./Context";
 
 export class ChannelList {
-    constructor(initialTracks = null){
-        this.tracks = initialTracks ? initialTracks : [];
+    public tracks: any[];
+
+    constructor(initialTracks = []){
+        this.tracks = initialTracks;
     }
 
     addTrack(track){
@@ -13,7 +15,6 @@ export class ChannelList {
         let currentTime = CONTEXT.currentTime + 2;
         this.tracks.forEach((channel) =>  {
             channel.startAtTime(currentTime);
-            console.log(currentTime);
         });
     }
 
