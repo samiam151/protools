@@ -22,17 +22,7 @@ export class AudioChannel extends Channel {
         this.source = this.context.createBufferSource();
         this.soundSource = soundSrc;
 
-        this.$container.append(this.template)
-
-
-        this.gain = new PTGainNode({
-            element: document.querySelector(`[data-id="${this.id}"] .channel--gain1`),
-            initialGain: 1
-        });
-
-        this.pan = new PTPannerNode({
-            element: document.querySelector(`[data-id="${this.id}"] input.channel--pan-input`)
-        });
+        // this.$container.append(this.template)    
         
         this.isSterio = null;
     }
@@ -50,6 +40,18 @@ export class AudioChannel extends Channel {
                 <p class="channel--trackName">${this.name}</p>
             </div>
         `)[0];
+    }
+
+    initializeTemplate() {
+        this.renderTemplate();
+        this.gain = new PTGainNode({
+            element: document.querySelector(`[data-id="${this.id}"] .channel--gain1`),
+            initialGain: 1
+        });
+
+        this.pan = new PTPannerNode({
+            element: document.querySelector(`[data-id="${this.id}"] input.channel--pan-input`)
+        });
     }
 
     renderTemplate() {

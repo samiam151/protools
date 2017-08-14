@@ -28,7 +28,7 @@ function init(){
             initialChannelList.addTrack(new AudioChannel(CONTEXT, sound.data, soundName));
         });
 
-        // initialChannelList.renderTracks();
+        initialChannelList.renderTracks();
 
         console.log(initialChannelList);
         

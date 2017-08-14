@@ -5,6 +5,7 @@ Command playback
 Waiting screen while audio is loading
 Templating system
 
+Ability to save a mix
 Partial rendering/ loading?
 
 

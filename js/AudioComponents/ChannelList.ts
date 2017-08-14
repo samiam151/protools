@@ -12,13 +12,13 @@ export class ChannelList {
     }
 
     startTracks(){
-        let currentTime = CONTEXT.currentTime + 2;
+        let currentTime = CONTEXT.currentTime + 15;
         this.tracks.forEach((channel) =>  {
             channel.startAtTime(currentTime);
         });
     }
 
     renderTracks() {
-        this.tracks.forEach(track => track.renderTemplate());
+        this.tracks.forEach(track => track.initializeTemplate());
     }
 }
