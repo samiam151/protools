@@ -23,6 +23,9 @@ gulp.task('build-js', function () {
             console.log(error);
         })
         .plugin(tsify)
+        .on("error", (error) => {
+            console.log(error);
+        })
         .bundle()
         .pipe(source('bundle.js'))
         .pipe(gulp.dest('./public/js'));

@@ -1,7 +1,7 @@
 .channel--container .channel {
-    min-height: 80vh;
+    min-height: 20em;
     max-height: 80vh;
-    width: 2.75em;
+    width: 3em;
     margin: 0 3px;
     border-radius: 3px;
     border: 2px solid #202020;
@@ -10,7 +10,7 @@
     flex-flow: column nowrap;
     justify-content: flex-end;
     align-items: center;
-    background: linear-gradient(180deg, #777, #5f5f5f);
+    background: linear-gradient(180deg, #777, #5c5c5c);
 
     p.channel--trackName {
         word-break: break-all;
@@ -19,14 +19,23 @@
         font-size: 12px;
         padding: 3px;
         max-height: 3em;
+        height: 3em;
         overflow: hidden;
     }
 
+    // Gain 1
     .channel--gain1 {
         .channel--gain1-range {
             transform: rotate(90deg);
             position: relative;
             top: -60px;
+        }
+    }
+
+    // Pan 1
+    .channel--pan1 {
+        .channel--pan-input {
+            width: 40px;
         }
     }
 }

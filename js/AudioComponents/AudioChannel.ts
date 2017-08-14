@@ -29,7 +29,10 @@ export class AudioChannel extends Channel {
             element: document.querySelector(`[data-id="${this.id}"] .channel--gain1`),
             initialGain: 1
         });
-        this.pan = new PTPannerNode();
+
+        this.pan = new PTPannerNode({
+            element: document.querySelector(`[data-id="${this.id}"] input.channel--pan-input`)
+        });
         
         this.isSterio = null;
     }
@@ -40,6 +43,9 @@ export class AudioChannel extends Channel {
                 <div class="channel--gain1">
                     <input type="range" class="channel--gain1-range" min="-15" max="15" step="0.1" />
                     <span class="channel--gain1-indicator"></span>
+                </div>
+                <div class="channel--pan1">
+                    <input class="channel--pan-input" type="number" min="-1" max="1" step="0.1" defualtValue="0" />
                 </div>
                 <p class="channel--trackName">${this.name}</p>
             </div>
