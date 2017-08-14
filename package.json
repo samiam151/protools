@@ -33,7 +33,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon server/server.js --config ./nodemon.json  "
+    "server": "nodemon server/server.js --config ./nodemon.json",
+    "start": "node .\\server\\server.js"
   },
   "author": "",
   "license": "ISC"
