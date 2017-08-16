@@ -33,7 +33,7 @@ function init(){
         console.log(initialChannelList);
         
     }).then(() => {
-        console.log("Rendered...")
+        console.log("Rendered...");
         initialChannelList.startTracks();
     });
 }

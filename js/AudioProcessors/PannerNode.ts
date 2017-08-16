@@ -11,7 +11,6 @@ export class PTPannerNode {
         if (this.boundElement){
             this.boundElement.addEventListener("input", (e) => {
                 let newPanValue = e.target['value'];
-                console.log(newPanValue);
                 this.setPan(newPanValue);
             });
         }

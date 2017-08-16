@@ -1,10 +1,11 @@
 .channel--container .channel {
     min-height: 20em;
     max-height: 80vh;
-    width: 3em;
+    width: 3.5em;
     margin: 0 3px;
     border-radius: 3px;
     border: 2px solid #202020;
+    position: relative;
 
     display: flex;
     flex-flow: column nowrap;
@@ -23,19 +24,54 @@
         overflow: hidden;
     }
 
-    // Gain 1
-    .channel--gain1 {
-        .channel--gain1-range {
-            transform: rotate(90deg);
-            position: relative;
-            top: -60px;
-        }
-    }
+    
 
     // Pan 1
     .channel--pan1 {
         .channel--pan-input {
             width: 40px;
         }
+    }
+
+   
+
+    .channel--fader {
+        position: relative;
+
+        // Gain 1
+        .channel--gain1 {
+            position: relative;
+            right: 8px;
+            .channel--gain1-range {
+                transform: rotate(270deg);
+                position: relative;
+                top: -60px;
+            }
+        }
+
+            // Meter
+        .meter {
+            padding: 2px;
+            width:14px;
+            background-color: black;
+            border-radius: 3px;
+            position: absolute;
+            right: 43px;
+            bottom: 8px;
+            height: 133px;
+
+            .meter--cont {
+                background-color: green;
+                width: 10px;
+                transition: height 0.1s ease-out;
+                position: absolute;
+                bottom: 2px;
+            }
+        }
+    }
+
+    .isolation--cont {
+        display: flex;
+        padding: 4px;
     }
 }

@@ -7,14 +7,14 @@ const router = express.Router();
 const fs = require("fs");
 const homePage = "/index.html";
 
+let index = 0;
+
 // Middleware
-router.use((req, res, next) => {
-    console.log("Fetching page...");
-    next();
-});
 
 // Route Handlers
 router.get("/", (req, res) => {
+    console.log(`Index: ${index}`);
+    index++;
     res.sendFile(homePage, {
         root: "./"
     });

@@ -11,6 +11,92 @@ html {
   background-blend-mode: multiply;
   color: white; }
 
+.tgl {
+  display: none; }
+  .tgl, .tgl:after, .tgl:before,
+  .tgl *,
+  .tgl *:after,
+  .tgl *:before,
+  .tgl + .tgl-btn {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box; }
+    .tgl::-moz-selection, .tgl:after::-moz-selection, .tgl:before::-moz-selection,
+    .tgl *::-moz-selection,
+    .tgl *:after::-moz-selection,
+    .tgl *:before::-moz-selection,
+    .tgl + .tgl-btn::-moz-selection {
+      background: none; }
+    .tgl::selection, .tgl:after::selection, .tgl:before::selection,
+    .tgl *::selection,
+    .tgl *:after::selection,
+    .tgl *:before::selection,
+    .tgl + .tgl-btn::selection {
+      background: none; }
+  .tgl + .tgl-btn {
+    outline: 0;
+    display: block;
+    width: 1.5em;
+    height: 1.5em;
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    margin: 2px; }
+    .tgl + .tgl-btn:after, .tgl + .tgl-btn:before {
+      position: relative;
+      display: block;
+      content: "";
+      width: 50%;
+      height: 100%; }
+    .tgl + .tgl-btn:after {
+      left: 0; }
+    .tgl + .tgl-btn:before {
+      display: none; }
+  .tgl:checked + .tgl-btn:after {
+    left: 50%; }
+
+.tgl-skewed + .tgl-btn {
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+  -webkit-transition: all .2s ease;
+  transition: all .2s ease;
+  font-family: sans-serif;
+  background: #888; }
+  .tgl-skewed + .tgl-btn:after, .tgl-skewed + .tgl-btn:before {
+    display: inline-block;
+    -webkit-transition: all .2s ease;
+    transition: all .2s ease;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    line-height: 2em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    top: -3px; }
+  .tgl-skewed + .tgl-btn:after {
+    left: 100%;
+    content: attr(data-tg-on); }
+  .tgl-skewed + .tgl-btn:before {
+    left: 0;
+    content: attr(data-tg-off); }
+  .tgl-skewed + .tgl-btn:active {
+    background: #888; }
+    .tgl-skewed + .tgl-btn:active:before {
+      left: -10%; }
+
+.tgl-skewed:checked + .tgl-btn {
+  background: #F82E1B; }
+  .tgl-skewed:checked + .tgl-btn:before {
+    left: -100%; }
+  .tgl-skewed:checked + .tgl-btn:after {
+    left: 0; }
+  .tgl-skewed:checked + .tgl-btn:active:after {
+    left: 10%; }
+
 .channel--container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -23,10 +109,11 @@ html {
 .channel--container .channel {
   min-height: 20em;
   max-height: 80vh;
-  width: 3em;
+  width: 3.5em;
   margin: 0 3px;
   border-radius: 3px;
   border: 2px solid #202020;
+  position: relative;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -51,10 +138,36 @@ html {
     max-height: 3em;
     height: 3em;
     overflow: hidden; }
-  .channel--container .channel .channel--gain1 .channel--gain1-range {
-    -webkit-transform: rotate(90deg);
-            transform: rotate(90deg);
-    position: relative;
-    top: -60px; }
   .channel--container .channel .channel--pan1 .channel--pan-input {
     width: 40px; }
+  .channel--container .channel .channel--fader {
+    position: relative; }
+    .channel--container .channel .channel--fader .channel--gain1 {
+      position: relative;
+      right: 8px; }
+      .channel--container .channel .channel--fader .channel--gain1 .channel--gain1-range {
+        -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+        position: relative;
+        top: -60px; }
+    .channel--container .channel .channel--fader .meter {
+      padding: 2px;
+      width: 14px;
+      background-color: black;
+      border-radius: 3px;
+      position: absolute;
+      right: 43px;
+      bottom: 8px;
+      height: 133px; }
+      .channel--container .channel .channel--fader .meter .meter--cont {
+        background-color: green;
+        width: 10px;
+        -webkit-transition: height 0.1s ease-out;
+        transition: height 0.1s ease-out;
+        position: absolute;
+        bottom: 2px; }
+  .channel--container .channel .isolation--cont {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    padding: 4px; }

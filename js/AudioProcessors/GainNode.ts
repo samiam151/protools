@@ -1,5 +1,7 @@
 import { CONTEXT } from "../AudioComponents/Context";
 
+
+var index = 0;
 export class PTGainNode {
     public node: GainNode;
     public boundElement: Element;
@@ -10,12 +12,11 @@ export class PTGainNode {
         //this.setGain(20);
         this.boundElement = args.element ? args.element : null;
         this.boundElement.addEventListener("input", (e) => {
-            console.log(e.target['value']);
             this.setGain(e.target['value']);
         });
     }
 
     setGain(value) {
-        this.node.gain.value = value;
+        this.node.gain.value = value;  // the default value is 1. a value of 0 will mute the channel
     }
 }

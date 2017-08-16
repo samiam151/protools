@@ -21,4 +21,12 @@ export class ChannelList {
     renderTracks() {
         this.tracks.forEach(track => track.initializeTemplate());
     }
+
+    captureLevelState(){
+        let arr = [];
+        this.tracks.forEach(track => {
+            arr.push(track.getLevelState());
+        });
+        return arr;
+    }
 }
