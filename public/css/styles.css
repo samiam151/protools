@@ -104,16 +104,18 @@ html {
   -webkit-box-orient: horizontal;
   -webkit-box-direction: normal;
       -ms-flex-flow: row nowrap;
-          flex-flow: row nowrap; }
+          flex-flow: row nowrap;
+  padding: 2em; }
 
 .channel--container .channel {
-  min-height: 20em;
+  min-height: 30em;
   max-height: 80vh;
   width: 3.5em;
   margin: 0 3px;
-  border-radius: 3px;
+  border-radius: 5px;
   border: 2px solid #202020;
   position: relative;
+  padding-bottom: 5px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -139,7 +141,11 @@ html {
     height: 3em;
     overflow: hidden; }
   .channel--container .channel .channel--pan1 .channel--pan-input {
-    width: 40px; }
+    width: 90%;
+    margin: 0 3px;
+    height: 25px;
+    background-color: ghostwhite;
+    border: 1px solid black; }
   .channel--container .channel .channel--fader {
     position: relative; }
     .channel--container .channel .channel--fader .channel--gain1 {
@@ -162,12 +168,13 @@ html {
       .channel--container .channel .channel--fader .meter .meter--cont {
         background-color: green;
         width: 10px;
-        -webkit-transition: height 0.1s ease-out;
-        transition: height 0.1s ease-out;
+        -webkit-transition: height 0.3s ease-out;
+        transition: height 0.3s ease-out;
         position: absolute;
         bottom: 2px; }
   .channel--container .channel .isolation--cont {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    padding: 4px; }
+    width: 100%;
+    padding: 4px 1px; }

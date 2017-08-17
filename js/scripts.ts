@@ -20,21 +20,17 @@ function init(){
 
     // Load the sound files for this ChannelList
     Promise.all(stems).then(soundRequests => {
-        console.log("Loaded...")
-        // 
         let sounds = soundRequests.map(sound => {
             let soundName = sound['request']['responseURL'].split(/_/)[1];
             SoundBank['addSound'](sound.data);
             initialChannelList.addTrack(new AudioChannel(CONTEXT, sound.data, soundName));
         });
-
-        initialChannelList.renderTracks();
-
-        console.log(initialChannelList);
         
+        initialChannelList.renderTracks();        
+        console.log("Loaded...")
     }).then(() => {
-        console.log("Rendered...");
         initialChannelList.startTracks();
+        console.log("Rendered...");
     });
 }
 

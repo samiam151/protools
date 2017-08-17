@@ -100,11 +100,8 @@ export class AudioChannel extends Channel {
 
     startAtTime(time){
         this.context.decodeAudioData(this.soundSource, (audioBuffer) => {
-            console.log(audioBuffer);
-            this.isSterio = (audioBuffer.numberOfChannels > 1);
+            // this.isSterio = (audioBuffer.numberOfChannels > 1);
             this.source.buffer = audioBuffer;
-            // this.source.connect(this.context.destination);
-            // this.source.start(time);
             this.initPlayback(this.source, time);
         });
     }

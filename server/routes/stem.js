@@ -5,13 +5,14 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
-let editMode = true;
+let editMode = false;
 let version = editMode ? "Edited" : "Full";
 // Middleware
 
 // Route Handlers
 router.get("/", (req, res) => {
-    let urlPrefix = editMode ? "./audiostems/jazz/short/" : "./audiostems/jazz/full/"
+    // let urlPrefix = editMode ? "./audiostems/jazz/short/" : "./audiostems/jazz/full/";
+    let urlPrefix = editMode ? "./audiostems/chonta/short/" : "./audiostems/chonta/full/"
     let url = urlPrefix + req.query.stem;
     console.log(url);
     res.header("Content-Type", "octet/stream");

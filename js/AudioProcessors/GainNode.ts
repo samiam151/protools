@@ -5,6 +5,7 @@ var index = 0;
 export class PTGainNode {
     public node: GainNode;
     public boundElement: Element;
+    public previousGain: number;
     
     constructor(args){
         // element, initialGain = 0
@@ -13,6 +14,7 @@ export class PTGainNode {
         this.boundElement = args.element ? args.element : null;
         this.boundElement.addEventListener("input", (e) => {
             this.setGain(e.target['value']);
+            this.previousGain = e.target['value'];
         });
     }
 
