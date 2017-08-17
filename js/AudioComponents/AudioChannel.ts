@@ -40,7 +40,7 @@ export class AudioChannel extends Channel {
                         <span class="channel--gain1-indicator"></span>
                     </div>
                     <div class="meter">
-                        <div class="meter--cont"></div>
+                        <canvas id="meter--cont" height="400" width="10"></canvas>
                     </div>
                 </div>
                 <div class="channel--pan1">
@@ -79,7 +79,7 @@ export class AudioChannel extends Channel {
         });
 
         this.meter = new PTFaderMeter({
-            element: document.querySelector(`[data-id="${this.id}"] div.meter--cont`)
+            element: document.querySelector(`[data-id="${this.id}"] #meter--cont`)
         });
 
         this.muteButton = document.querySelector(`[id="mm-${this.id}"]`);
@@ -112,5 +112,7 @@ export class AudioChannel extends Channel {
         this.pan.node.connect(this.meter.node);
         this.meter.node.connect(CONTEXT.destination);
         this.source.start(time);
+
+        this.meter.draw();
     }
 }

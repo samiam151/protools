@@ -164,7 +164,9 @@ html {
       position: absolute;
       right: 43px;
       bottom: 8px;
-      height: 133px; }
+      height: 133px;
+      -webkit-transform: rotate(180deg);
+              transform: rotate(180deg); }
       .channel--container .channel .channel--fader .meter .meter--cont {
         background-color: green;
         width: 10px;
