@@ -4,7 +4,7 @@ let url = "audiostems/chonta/full";
 let urls = [];
 
 populateURLS().then(data => {
-    fs.writeFile("server/stemlists/chonta-full.json", JSON.stringify({
+    fs.writeFile("server/data/chonta-full.json", JSON.stringify({
         "urls": urls
     }, null, 4), (err) => {
         if (err) {

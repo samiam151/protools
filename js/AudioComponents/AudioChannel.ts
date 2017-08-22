@@ -3,6 +3,7 @@ import { Channel } from "./Channel";
 import { PTGainNode } from "../AudioProcessors/GainNode";
 import { PTPannerNode } from "../AudioProcessors/PannerNode";
 import { PTFaderMeter } from "../AudioProcessors/FaderMeter";
+import { Events } from "../Helpers/Events";
 
 export class AudioChannel extends Channel {
     public name: string;
@@ -40,7 +41,7 @@ export class AudioChannel extends Channel {
                         <span class="channel--gain1-indicator"></span>
                     </div>
                     <div class="meter">
-                        <canvas id="meter--cont" height="400" width="10"></canvas>
+                        <canvas id="meter--cont" height="133" width="10"></canvas>
                     </div>
                 </div>
                 <div class="channel--pan1">
@@ -90,7 +91,9 @@ export class AudioChannel extends Channel {
 
         this.soloButton = document.querySelector(`#ms-${this.id}`);
         this.soloButton.addEventListener("change", e => {
-            console.log(e.target);
+            Events.emit("solo", {
+
+            });
         });
     }
 

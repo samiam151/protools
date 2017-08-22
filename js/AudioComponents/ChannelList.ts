@@ -27,6 +27,8 @@ export class ChannelList {
         this.tracks.forEach(track => {
             arr.push(track.getLevelState());
         });
+
+        
         return arr;
     }
 }

@@ -1,3 +1,7 @@
 node_modules
 _example.js
 audiostems
+
+server/services/stem--service/config.js
+server/services/stem--service/config.json
+server/services/stem--service/rootkey.csv

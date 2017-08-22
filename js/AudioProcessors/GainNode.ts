@@ -1,8 +1,7 @@
 import { CONTEXT } from "../AudioComponents/Context";
+import { IBoundAudioProcessor } from "./IBoundAudioProcessor";
 
-
-var index = 0;
-export class PTGainNode {
+export class PTGainNode implements IBoundAudioProcessor {
     public node: GainNode;
     public boundElement: Element;
     public previousGain: number;

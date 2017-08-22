@@ -105,7 +105,10 @@ html {
   -webkit-box-direction: normal;
       -ms-flex-flow: row nowrap;
           flex-flow: row nowrap;
-  padding: 2em; }
+  padding: 2em 0;
+  width: 95%;
+  overflow-y: hidden;
+  margin: 0 auto; }
 
 .channel--container .channel {
   min-height: 30em;
