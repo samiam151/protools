@@ -12,7 +12,7 @@ export class ChannelList {
     }
 
     startTracks(){
-        let currentTime = CONTEXT.currentTime + 15;
+        let currentTime = CONTEXT.currentTime + 2;
         this.tracks.forEach((channel) =>  {
             channel.startAtTime(currentTime);
         });

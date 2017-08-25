@@ -9,55 +9,54 @@ import { ChannelList } from "./AudioComponents/ChannelList";
 
 window.onload = init;
 
+let initialChannelList = new ChannelList();
 function init(){
-    let initialChannelList = new ChannelList();
-    // let stems = Stems.map(stem => {
-    //     return getStem(stem);
-    // });
+    let tempBucket = "bulhtriostems";
 
-    getStems().then((res) => {
-        console.log(res);
-        let stems = res;
-        console.log(res);
+    getNames(tempBucket).then(urls => {
+        console.log(urls);
 
-        Promise.all(stems).then(data => {
-            console.log(data);
-            // let sounds = soundRequests.map(sound => {
-            //     let soundName = sound['request']['responseURL'].split(/_/)[1];
-            //     SoundBank['addSound'](sound.data);
-            //     initialChannelList.addTrack(new AudioChannel(CONTEXT, sound.data, soundName));
-            // });
-            
-            // initialChannelList.renderTracks();        
-            // console.log("Loaded...")
-        // }).then(() => {
-        //     initialChannelList.startTracks();
-        //     console.log("Rendered...");
-        // });
-        
+        urls.forEach(url => {
+            SoundBank['addSound'](url);
+            initialChannelList.addTrack(new AudioChannel(CONTEXT, url['url'], url['name']));
+        });
 
-        })
-    })
-    .catch(err => console.log(err));
+        console.log(initialChannelList.tracks);
 
-    // Load the sound files for this ChannelList
-    // Promise.all(stems).then(soundRequests => {
-    //     let sounds = soundRequests.map(sound => {
-    //         let soundName = sound['request']['responseURL'].split(/_/)[1];
-    //         SoundBank['addSound'](sound.data);
-    //         initialChannelList.addTrack(new AudioChannel(CONTEXT, sound.data, soundName));
-    //     });
-        
-    //     initialChannelList.renderTracks();        
-    //     console.log("Loaded...")
-    // }).then(() => {
-    //     initialChannelList.startTracks();
-    //     console.log("Rendered...");
-    // });
-    
+        initialChannelList.renderTracks();
+        initialChannelList.startTracks();
+    }).catch(err => console.log(err));
 }
 
-function getStems(){
-    return axios.get(`/stem/`);
+function getNames(bucket): Promise<object[]> {
+    return new Promise((resolve, reject) => {
+        axios.get(`/stem/list`, {
+            params: {
+                bucket: bucket
+            }
+        }).then(data => {
+            let urls = data.data.names.map(name => {
+                return {
+                    url: "http://bulhtriostems.s3-external-1.amazonaws.com/" + name,
+                    name: name
+                }
+            });
+            resolve(urls);
+        });
+    });
 }
+
+// function getStems(bucket, name){
+//     return new Promise((resolve, reject) => {
+//          axios({
+//             method: "GET",
+//             url: `/stem/`,
+//             responseType: "arraybuffer",
+//             params: {
+//                 bucket: bucket,
+//                 name: name
+//             }   
+//         }).then(data => resolve(data));
+//     });
+// }
 

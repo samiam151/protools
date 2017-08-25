@@ -12,18 +12,18 @@ const logPrefix = /^log/;
 
 let StemService = {};
 StemService.getStemList = function(bucket){
-    console.log(bucket);
     return new Promise((resolve, reject) => {
         s3.listObjects({
             Bucket: bucket,
             MaxKeys: 1000
         } ,(err, data) => {
-            if (err) {reject(err);}
+            if (err) {reject(err.stack);}
             else {
-                resolve(data.Contents.filter(field => {
-                    return !(logPrefix.test(field.Key));
-                })
-                .map(field => field.Key));
+                let result = data.Contents.map(field => field.Key);
+                
+                resolve(JSON.stringify({
+                    names: result
+                }));
             }
 
         });
@@ -44,7 +44,7 @@ StemService.getStemObject = function(bucketName, key) {
 
 if (require.main === module){
     // StemService.getStemList("bulhtriostems").then(data => console.log(data));
-    StemService.getStemObject("bulhtriostems", "01_KickInside.wav").then(data => console.log(data));
+    StemService.getStemObject("bulhtriostems", "01_KickInside.wav").then(data => console.log(data.Body));
 }
 else {
     exports.StemService = StemService;

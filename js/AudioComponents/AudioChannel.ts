@@ -9,7 +9,7 @@ export class AudioChannel extends Channel {
     public name: string;
     public id: number;
     public context: AudioContext;
-    public source: AudioBufferSourceNode;
+    public source: MediaElementAudioSourceNode;
     public soundSource: any;
     public gain: PTGainNode;
     public pan: PTPannerNode;
@@ -18,14 +18,17 @@ export class AudioChannel extends Channel {
     public meter: PTFaderMeter;
     public muteButton: Element;
     public soloButton: Element;
+    public audioElement: HTMLAudioElement;
 
     constructor(context, soundSrc, name){
         super(context);
         this.id = (Math.round(Math.random() * 1000));
+        this.audioElement = new Audio(soundSrc);
+        this.audioElement.crossOrigin = "anonymous";
         this.name = name;
         this.$container = $("div.channel--container");
-        this.source = this.context.createBufferSource();
-        this.soundSource = soundSrc;
+        this.source = this.context.createMediaElementSource(this.audioElement);
+        // this.soundSource = soundSrc;
 
         // this.$container.append(this.template)    
         
@@ -85,7 +88,6 @@ export class AudioChannel extends Channel {
 
         this.muteButton = document.querySelector(`[id="mm-${this.id}"]`);
         this.muteButton.addEventListener("change", e => {
-            console.log(e.target['checked']);
             e.target['checked'] ? this.gain.node.gain['value'] = 0 : this.gain.node.gain["value"] = 1;
         });
 
@@ -102,11 +104,11 @@ export class AudioChannel extends Channel {
     }
 
     startAtTime(time){
-        this.context.decodeAudioData(this.soundSource, (audioBuffer) => {
-            // this.isSterio = (audioBuffer.numberOfChannels > 1);
-            this.source.buffer = audioBuffer;
-            this.initPlayback(this.source, time);
-        });
+        // this.context.decodeAudioData(this.source, (audioBuffer) => {
+        //     // this.isSterio = (audioBuffer.numberOfChannels > 1);
+        //     this.source.buffer = audioBuffer;
+        // });
+        this.initPlayback(this.source, time);
     }
 
     initPlayback(source, time = 0){
@@ -114,7 +116,9 @@ export class AudioChannel extends Channel {
         this.gain.node.connect(this.pan.node);
         this.pan.node.connect(this.meter.node);
         this.meter.node.connect(CONTEXT.destination);
-        this.source.start(time);
+
+
+        this.audioElement.play();
 
         this.meter.draw();
     }

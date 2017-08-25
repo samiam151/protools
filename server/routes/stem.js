@@ -13,54 +13,35 @@ let version = editMode ? "Edited" : "Full";
 
 // Route Handlers
 router.get("/", (req, res) => {
-    // let urlPrefix = editMode ? "./audiostems/jazz/short/" : "./audiostems/jazz/full/";
-    // let baseUrl = "./audiostems/jazz";
-    // let urlPrefix = baseUrl + editMode ? "/short/" : "/full/";
-    // let url = urlPrefix + req.query.stem;
-    // console.log(url);
-    res.header("Content-Type", "applcation/json");
+    let objectName = req.query.name,
+        bucket = req.query.bucket;
 
-    console.log("--- Creating audio stream...");
-    console.log(`Version: ${version}`);
+    res.header("Content-Type", "application/octet-stream");
+    res.header('Access-Control-Allow-Origin', '*');
+
+    console.log(`--- Creating audio stream for ${bucket}/${objectName}...`);
 
     // let stemList = null;
+ 
+    StemService.getStemObject(bucket, objectName).then(data => {
+        console.log(typeof data.Body);
+        res.write(data.Body);
+        res.end();
+    }).catch(err => console.log(err));
 
-    StemService.getStemList("bulhtriostems")
-        .then(data => {
-            console.log(data);
-            let stemList = data  
-                .map(objectName => {
-                    return StemService.getStemObject("bulhtriostems", objectName); 
-                });
+});
 
-            // console.log()
-            // Promise.all(stemList).then(data => {
-            //     res.send(data);
-            // });
-            console.log(stemList);
-            res.send(stemList);
-            // StemService.getStemObjects("bulhtriostems").then(data => {
-            //     console.log(data);
-            //     res.send(data);
+router.get("/list", (req, res) => {
+    res.header("Content-Type", "application/json");
+    let bucket = req.query.bucket;
+    StemService.getStemList(bucket).then(data => {
+        // let urls = data.names.map(name => {
+        //     return "http://bulhtriostems.s3-external-1.amazonaws.com/" + name;
+        // });
 
-        })
-        .catch(err => {
-            console.log(1);
-            console.log(err);
-        });
-    // let readStream = fs.createReadStream(url);
-    // });
-
-
-    // readStream.on("open", function(){
-    //     readStream.pipe(res)
-    // });
-    // readStream.on("error", (err) => {
-    //     res.end(err);
-    // });
-    // readStream.on("close", () => {
-    //     console.log("--- Stream closed...");
-    // });
+        res.write(data);
+        res.end();
+    })
 });
 
 module.exports = router;
