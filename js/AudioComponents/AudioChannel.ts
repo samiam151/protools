@@ -28,10 +28,6 @@ export class AudioChannel extends Channel {
         this.name = name;
         this.$container = $("div.channel--container");
         this.source = this.context.createMediaElementSource(this.audioElement);
-        // this.soundSource = soundSrc;
-
-        // this.$container.append(this.template)    
-        
         this.isSterio = null;
     }
 
@@ -88,14 +84,19 @@ export class AudioChannel extends Channel {
 
         this.muteButton = document.querySelector(`[id="mm-${this.id}"]`);
         this.muteButton.addEventListener("change", e => {
-            e.target['checked'] ? this.gain.node.gain['value'] = 0 : this.gain.node.gain["value"] = 1;
+            this.toggleMute(e.target['checked']);
         });
 
         this.soloButton = document.querySelector(`#ms-${this.id}`);
         this.soloButton.addEventListener("change", e => {
-            Events.emit("solo", {
-
-            });
+            let isOn = e.target['checked'];
+            if (isOn){
+                Events.emit("track/solo", {
+                    trackToLeave: e.target['id'].split("-")[1]
+                });
+            } else {
+                Events.emit("track/unsolo");
+            }
         });
     }
 
@@ -104,10 +105,6 @@ export class AudioChannel extends Channel {
     }
 
     startAtTime(time){
-        // this.context.decodeAudioData(this.source, (audioBuffer) => {
-        //     // this.isSterio = (audioBuffer.numberOfChannels > 1);
-        //     this.source.buffer = audioBuffer;
-        // });
         this.initPlayback(this.source, time);
     }
 
@@ -117,9 +114,15 @@ export class AudioChannel extends Channel {
         this.pan.node.connect(this.meter.node);
         this.meter.node.connect(CONTEXT.destination);
 
-
         this.audioElement.play();
-
         this.meter.draw();
+    }
+
+    toggleMute(mute: boolean){
+        if (mute){
+            this.gain.node.gain['value'] = 0;
+        } else {
+            this.gain.node.gain["value"] = 1;
+        }
     }
 }

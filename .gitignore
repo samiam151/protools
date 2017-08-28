@@ -5,3 +5,7 @@ audiostems
 server/services/stem--service/config.js
 server/services/stem--service/config.json
 server/services/stem--service/rootkey.csv
+
+server/db/config.js
+
+server/services/user--service/user--service.js

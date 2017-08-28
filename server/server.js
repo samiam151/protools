@@ -7,8 +7,10 @@ const compression = require("compression");
 const PORT = 5775
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
-const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const RedisStore = require("connect-redis")(session);
+
 
 // Global Middleware
 app.use(compression());
@@ -16,16 +18,26 @@ app.use(helmet());
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(cookieParser());
-app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
+app.use(session({
+    secret: 'supernova',
+    store: new RedisStore({ 
+        host: 'localhost', 
+        port: 6379
+    }),
+    saveUninitialized: false,
+    resave: false
+}));
 app.use(express.static("public"));
-app.use(function(req, res, next){
-    console.log(req.cookies);
-    next();
-});
+// app.use(function(req, res, next){
+//     console.log(req.cookies);
+//     next();
+// });
+
 
 // Global Routes
 app.use("/", Routes.home);
 app.use("/stem", Routes.stem);
+app.use("/user", Routes.user);
 
 
 // Initialization

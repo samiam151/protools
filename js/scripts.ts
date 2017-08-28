@@ -24,7 +24,10 @@ function init(){
         console.log(initialChannelList.tracks);
 
         initialChannelList.renderTracks();
-        initialChannelList.startTracks();
+
+        setTimeout(() => {
+            initialChannelList.startTracks();
+        }, 2000)
     }).catch(err => console.log(err));
 }
 
@@ -59,4 +62,3 @@ function getNames(bucket): Promise<object[]> {
 //         }).then(data => resolve(data));
 //     });
 // }
-
