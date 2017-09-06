@@ -30,10 +30,12 @@ export class ChannelList {
     }
 
     startTracks(){
-        let currentTime = CONTEXT.currentTime + 2;
-        this.tracks.forEach((channel) =>  {
-            channel.startAtTime(currentTime);
-        });
+        setTimeout(() => {
+            let currentTime = CONTEXT.currentTime + 2;
+            this.tracks.forEach((channel) =>  {
+                channel.startAtTime(currentTime);
+            });
+        }, 7000);
     }
 
     renderTracks() {

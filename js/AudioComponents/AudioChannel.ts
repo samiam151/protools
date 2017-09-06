@@ -5,6 +5,8 @@ import { PTPannerNode } from "../AudioProcessors/PannerNode";
 import { PTFaderMeter } from "../AudioProcessors/FaderMeter";
 import { Events } from "../Helpers/Events";
 
+import { KnobFactory } from "../UIComponents/KnobFactory";
+
 export class AudioChannel extends Channel {
     public name: string;
     public id: number;
@@ -19,16 +21,22 @@ export class AudioChannel extends Channel {
     public muteButton: Element;
     public soloButton: Element;
     public audioElement: HTMLAudioElement;
+    public test: any;
 
     constructor(context, soundSrc, name){
         super(context);
         this.id = (Math.round(Math.random() * 1000));
         this.audioElement = new Audio(soundSrc);
         this.audioElement.crossOrigin = "anonymous";
+        this.audioElement.autoplay = false;
+        this.audioElement.preload = "auto";
         this.name = name;
         this.$container = $("div.channel--container");
         this.source = this.context.createMediaElementSource(this.audioElement);
         this.isSterio = null;
+
+        this.test = KnobFactory.create();
+        console.log(KnobFactory.create());
     }
 
     get template() {

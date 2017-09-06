@@ -1,6 +1,6 @@
 var AWS = require("aws-sdk");
 const fs = require("fs");
-const configs = require("./config").configs;
+const configs = require("../../config/s3/config").configs;
 
 // Setup AWS connection
 let config = new AWS.Config();
@@ -12,6 +12,7 @@ const logPrefix = /^log/;
 
 let StemService = {};
 StemService.getStemList = function(bucket){
+    console.log(bucket);
     return new Promise((resolve, reject) => {
         s3.listObjects({
             Bucket: bucket,
@@ -20,7 +21,7 @@ StemService.getStemList = function(bucket){
             if (err) {reject(err.stack);}
             else {
                 let result = data.Contents.map(field => field.Key);
-                
+                console.log(result);
                 resolve(JSON.stringify({
                     names: result
                 }));

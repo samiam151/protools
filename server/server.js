@@ -14,30 +14,25 @@ const RedisStore = require("connect-redis")(session);
 
 // Global Middleware
 app.use(compression());
-app.use(helmet());
+// app.use(helmet());
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-app.use(cookieParser());
-app.use(session({
-    secret: 'supernova',
-    store: new RedisStore({ 
-        host: 'localhost', 
-        port: 6379
-    }),
-    saveUninitialized: false,
-    resave: false
-}));
 app.use(express.static("public"));
-// app.use(function(req, res, next){
-//     console.log(req.cookies);
-//     next();
-// });
-
+// app.use(cookieParser());
+// app.use(session({
+//     secret: 'supernova',
+//     store: new RedisStore({ 
+//         host: 'localhost', 
+//         port: 6379
+//     }),
+//     saveUninitialized: false,
+//     resave: false
+// }));
 
 // Global Routes
 app.use("/", Routes.home);
-app.use("/stem", Routes.stem);
 app.use("/user", Routes.user);
+app.use("/api/stem", Routes.stem);
 
 
 // Initialization
