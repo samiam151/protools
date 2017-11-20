@@ -20,8 +20,6 @@ router.post("/auth", (req, res) => {
                 token: jwt.sign(tokenData, "test")
             }
 
-
-
             res.json(result);
         });
 });

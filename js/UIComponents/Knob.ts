@@ -1,483 +1,299 @@
-"use strict";
+// KnobInput class
+export class KnobInput {
+  public initial: any;
+  public visualElementClass: any;
+  public dragResistance: any;
+  public wheelResistance: any;
+  public setupVisualContext: any;
+  public updateVisuals: any;
+  public element: any;
+  public minRotation: any;
+  public maxRotation: any;
 
-// var Knob;
-const Knob = function(input, ui) {
-  var container = document.createElement('div');
-  container.setAttribute('tabindex', "0");
-  input.parentNode.replaceChild(container, input);
-  input.style.cssText = 'position: absolute; top: -10000px';
-  input.setAttribute('tabindex', -1);
-  container.appendChild(input);
+  public _container: any;
+  public _input: any;
+  public _visualElement: any;
+  public _visualContext: any;
+  public _handlers: any;
+  public _activeDrag: any;
+  public _dragStartPosition: any;
+  public _prevValue: any;
 
-  var settings = this.settings = this._getSettings(input);
+    constructor(containerElement, options) {
+      if (!options) {
+        options = {};
+      }
+      
+      // settings
+      var step = options.step || 'any';
+      var min = typeof options.min === 'number' ? options.min : 0;
+      var max = typeof options.max === 'number' ? options.max : 1;
+      this.initial = typeof options.initial === 'number' ? options.initial : 0.5 * (min + max);
+      this.visualElementClass = options.visualElementClass || 'knob-input__visual';
+      this.dragResistance = typeof options.dragResistance === 'number' ? options.dragResistance : 300;
+      this.dragResistance /= max-min;
+      this.wheelResistance = typeof options.wheelResistance === 'number' ? options.wheelResistance : 4000;
+      this.wheelResistance /= max-min;
+      this.setupVisualContext = typeof options.visualContext === 'function' ? options.visualContext : KnobInput.setupRotationContext(0, 360);
+      this.updateVisuals = typeof options.updateVisuals === 'function' ? options.updateVisuals : KnobInput.rotationUpdateFunction;
 
-
-  this.value = input.value = settings.min + settings.range / 2;
-  this.input = input;
-  this.min = settings.min;
-
-  this.ui = ui;
-  input.addEventListener('change', this.changed.bind(this), false);
-
-  var events = {
-    keydown: this._handleKeyEvents.bind(this),
-    mousewheel: this._handleWheelEvents.bind(this),
-    DOMMouseScroll: this._handleWheelEvents.bind(this),
-    touchstart: this._handleMove.bind(this, 'touchmove', 'touchend'),
-    mousedown: this._handleMove.bind(this, 'mousemove', 'mouseup')
-  };
-
-  for (var event in events) {
-    container.addEventListener(event, events[event], false);
-  }
-
-  container.style.cssText = 'position: relative; width:' + settings.width + 'px;' + 'height:' + settings.height + 'px;';
-
-  ui.init(container, settings);
-  this.container = container;
-  this.changed(0);
-
-};
-
-Knob.prototype = {
-  _handleKeyEvents: function(e) {
-    var keycode = e.keyCode;
-    if (keycode >= 37 && keycode <= 40) {
-      e.preventDefault();
-      var f = 1 + e.shiftKey * 9;
-      this.changed({37: -1, 38: 1, 39: 1, 40: -1}[keycode] * f);
+      // setup input
+      var rangeInput = document.createElement('input');
+      rangeInput.type = 'range';
+      rangeInput.step = step;
+      rangeInput.min = min;
+      rangeInput.max = max;
+      rangeInput.value = this.initial;
+      containerElement.appendChild(rangeInput);
+      
+      // elements
+      this._container = containerElement;
+      this._container.classList.add('knob-input');
+      this._input = rangeInput;
+      this._input.classList.add('knob-input__input');
+      this._visualElement = this._container.querySelector(`.${this.visualElementClass}`);
+      this._visualElement.classList.add('knob-input__visual');
+      
+      // visual context
+      this._visualContext = { element: this._visualElement };
+      this.setupVisualContext.apply(this._visualContext);
+      this.updateVisuals = this.updateVisuals.bind(this._visualContext);
+      
+      // internals
+      this._activeDrag = false;
+      
+      // define event listeners
+      // have to store bound versions of handlers so they can be removed later
+      this._handlers = {
+        inputChange: this.handleInputChange.bind(this),
+        touchStart: this.handleTouchStart.bind(this),
+        touchMove: this.handleTouchMove.bind(this),
+        touchEnd: this.handleTouchEnd.bind(this),
+        touchCancel: this.handleTouchCancel.bind(this),
+        mouseDown: this.handleMouseDown.bind(this),
+        mouseMove: this.handleMouseMove.bind(this),
+        mouseUp: this.handleMouseUp.bind(this),
+        mouseWheel: this.handleMouseWheel.bind(this),
+        doubleClick: this.handleDoubleClick.bind(this),
+        focus: this.handleFocus.bind(this),
+        blur: this.handleBlur.bind(this),
+      };
+      // add listeners
+      this._input.addEventListener('change', this._handlers.inputChange);
+      this._input.addEventListener('touchstart', this._handlers.touchStart);
+      this._input.addEventListener('mousedown', this._handlers.mouseDown);
+      this._input.addEventListener('wheel', this._handlers.mouseWheel);
+      this._input.addEventListener('dblclick', this._handlers.doubleClick);
+      this._input.addEventListener('focus', this._handlers.focus);
+      this._input.addEventListener('blur', this._handlers.blur);
+      // init
+      this.updateToInputValue();
     }
-  },
-
-  _handleWheelEvents: function(e) {
-    e.preventDefault();
-    var deltaX = -e.detail || e.wheelDeltaX;
-    var deltaY = -e.detail || e.wheelDeltaY;
-    var val = deltaX > 0 || deltaY > 0 ? 1 : deltaX < 0 || deltaY < 0 ? -1 : 0;
-    this.changed(val);
-  },
-
-  _handleMove: function(onMove, onEnd) {
-    this.centerX = Math.floor(this.container.getBoundingClientRect().left)+ document.body.scrollLeft + this.settings.width / 2;
-    this.centerY = Math.floor(this.container.getBoundingClientRect().top)+ document.body.scrollTop + this.settings.height / 2;
-
-    var fnc = this._updateWhileMoving.bind(this);
-    var body = document.body;
-    body.addEventListener(onMove, fnc, false);
-    body.addEventListener(onEnd, function() {
-      body.removeEventListener(onMove, fnc, false);
-    }, false);
-  },
-
-  _updateWhileMoving: function(event) {
-    event.preventDefault();
-    var e = event.changedTouches ? event.changedTouches[0] : event;
-    var x = this.centerX - e.pageX;
-    var y = this.centerY - e.pageY;
-    var deg = Math.atan2(-y, -x) * 180 / Math.PI + 90 - this.settings.angleoffset;
-    var percent;
-
-    if (deg < 0) {
-      deg += 360;
+    
+    static getTemplate() {
+        return `<div class="fl-studio-envelope__knob">
+          <svg class="knob-input__visual" viewBox="0 0 40 40">
+              <circle class="focus-indicator" cx="20" cy="20" r="18" fill="#4eccff" filter="url(#glow)"></circle>
+              <circle class="indicator-ring-bg" cx="20" cy="20" r="18" fill="#353b3f" stroke="#23292d"></circle>
+              <path class="indicator-ring" d="M20,20Z" fill="#4eccff"></path>
+              <g class="dial">
+              <circle cx="20" cy="20" r="16" fill="url(#grad-dial-soft-shadow)"></circle>
+              <ellipse cx="20" cy="22" rx="14" ry="14.5" fill="#242a2e" opacity="0.15"></ellipse>
+              <circle cx="20" cy="20" r="14" fill="url(#grad-dial-base)" stroke="#242a2e" stroke-width="1.5"></circle>
+              <circle cx="20" cy="20" r="13" fill="transparent" stroke="url(#grad-dial-highlight)" stroke-width="1.5"></circle>
+              <circle class="dial-highlight" cx="20" cy="20" r="14" fill="#ffffff"></circle>
+              <circle class="indicator-dot" cx="20" cy="30" r="1.5" fill="#4eccff"></circle>
+              </g>
+          </svg>
+      </div>`
     }
-    deg = deg % 360;
-    if (deg <= this.settings.anglerange) {
-      percent = Math.max(Math.min(1, deg / this.settings.anglerange), 0);
-    } else {
-      percent = +(deg - this.settings.anglerange < (360 - this.settings.anglerange) / 2);
+
+    static setupRotationContext(minRotation, maxRotation) {
+      return function() {
+        this.minRotation = minRotation;
+        this.maxRotation = maxRotation;
+      };
     }
-    var range = this.settings.range;
-    var value = this.min + range * percent;
-
-    var step = (this.settings.max - this.min) / range;
-    this.value = this.input.value = Math.round(value / step) * step;
-    this.ui.update(percent, this.value);
-  },
-
-  changed: function(direction) {
-    this.input.value = this.limit(parseFloat(this.input.value) + direction * (this.input.step || 1));
-    this.value = this.input.value;
-    this.ui.update(this._valueToPercent(), this.value);
-  },
-
-  _valueToPercent: function() {
-    return  this.value != null ? 100 / this.settings.range * (this.value - this.min) / 100 : this.min;
-  },
-
-  limit: function(value) {
-    return Math.min(Math.max(this.settings.min, value), this.settings.max);
-  },
-
-  _getSettings: function(input) {
-    var labels;
-
-    if(input.dataset.labels){
-      labels = input.dataset.labels.split(',');
+    
+    static rotationUpdateFunction(norm) {
+      this['element'].style['transform'] = `rotate(${this['maxRotation']*norm-this['minRotation']*(norm-1)}deg)`;
     }
-    var settings = {
-      max: labels ? labels.length-1 : parseFloat(input.max),
-      min: labels ? 0 : parseFloat(input.min),
-      step: parseFloat(input.step) || 1,
-      angleoffset: 0,
-      anglerange: 360,
-      labels: labels
-    };
-    settings['range'] = settings.max - settings.min;
-    var data = input.dataset;
-    for (var i in data) {
-      if (data.hasOwnProperty(i) && i!=='labels') {
-        var value = +data[i];
-        settings[i] = isNaN(value) ? data[i] : value;
+    
+    // handlers
+    handleInputChange(evt) {
+      // console.log('input change');
+      this.updateToInputValue();
+    }
+    
+    handleTouchStart(evt) {
+      // console.log('touch start');
+      this.clearDrag();
+      evt.preventDefault();
+      var touch = evt.changedTouches.item(evt.changedTouches.length - 1);
+      this._activeDrag = touch.identifier;
+      this.startDrag(touch.clientY);
+      // drag update/end listeners
+      document.body.addEventListener('touchmove', this._handlers.touchMove);
+      document.body.addEventListener('touchend', this._handlers.touchEnd);
+      document.body.addEventListener('touchcancel', this._handlers.touchCancel);
+    }
+    
+    handleTouchMove(evt) {
+      // console.log('touch move');
+      var activeTouch = this.findActiveTouch(evt.changedTouches);
+      if (activeTouch) {
+        this.updateDrag(activeTouch.clientY);
+      } else if (!this.findActiveTouch(evt.touches)) {
+        this.clearDrag();
       }
     }
-    return settings;
-  }
-};
-
-
-
-var Ui = function() {
-};
-
-Ui.prototype = {
-  init: function(parentEl, options) {
-    this.options || (this.options = {});
-    this.merge(this.options, options);
-    this.width = options.width;
-    this.height = options.height;
-    this.createElement(parentEl);
-    if (!this.components) {
-      return;
-    }
-    this.components.forEach(function(component) {
-      component.init(this.el.node, options);
-    }.bind(this));
-  },
-
-  merge: function(dest, src) {
-    for (var i in src) {
-      if (src.hasOwnProperty(i)) {
-        dest[i] = src[i];
+    
+    handleTouchEnd(evt) {
+      // console.log('touch end');
+      var activeTouch = this.findActiveTouch(evt.changedTouches);
+      if (activeTouch) {
+        this.finalizeDrag(activeTouch.clientY);
       }
     }
-    return dest;
-  },
-
-  addComponent: function(component) {
-    this.components || (this.components = []);
-    this.components.push(component);
-  },
-
-  update: function(percent, value) {
-
-    if (!this.components) {
-      return;
+    
+    handleTouchCancel(evt) {
+      // console.log('touch cancel');
+      if (this.findActiveTouch(evt.changedTouches)) {
+        this.clearDrag();
+      }
     }
-    this.components.forEach(function(component) {
-      component.update(percent, value);
-    });
-  },
-
-  createElement: function(parentEl) {
-    this.el = new Ui['El'](this.width, this.height);
-    this.el.create("svg", {
-      version: "1.2",
-      baseProfile: "tiny",
-      width: this.width,
-      height: this.height
-    });
-    this.appendTo(parentEl);
-  },
-  appendTo: function(parent) {
-    parent.appendChild(this.el.node);
-  }
-
-};
-
-Ui['Pointer'] = function(options) {
-  this.options = options || {};
-  this.options.type && Ui['El'][this.options.type] || (this.options.type = 'Triangle');
-};
-
-Ui['Pointer'].prototype = Object.create(Ui.prototype);
-
-Ui['Pointer'].prototype.update = function(percent) {
-  this.el.rotate(this.options.angleoffset + percent * this.options.anglerange, this.width / 2,
-    this.height / 2);
-};
-
-Ui['Pointer'].prototype.createElement = function(parentEl) {
-  this.options.pointerHeight || (this.options.pointerHeight = this.height / 2);
-  if (this.options.type == 'Arc') {
-    this.el = new Ui['El'].Arc(this.options);
-    this.el.setAngle(this.options.size);
-  } else {
-    this.el = new Ui['El'][this.options.type](this.options.pointerWidth,
-      this.options.pointerHeight, this.width / 2,
-      this.options.pointerHeight / 2 + this.options.offset);
-  }
-  this.el.addClassName('pointer');
-  this.appendTo(parentEl);
-
-};
-
-Ui['Arc'] = function(options) {
-  this.options = options || {};
-};
-
-Ui['Arc'].prototype = Object.create(Ui.prototype);
-
-Ui['Arc'].prototype.createElement = function(parentEl) {
-  this.el = new Ui['El']['Arc'](this.options);
-  this.appendTo(parentEl);
-};
-
-Ui['Arc'].prototype.update = function(percent) {
-  this.el.setAngle(percent * this.options.anglerange);
-};
-
-Ui['Scale'] = function(options) {
-  this.options = this.merge({
-    steps: options.range / options.step,
-    radius: this.width / 2,
-    tickWidth: 1,
-    tickHeight: 3
-  }, options);
-  this.options.type = Ui['El'][this.options.type || 'Rect'];
-};
-
-Ui['Scale'].prototype = Object.create(Ui.prototype);
-
-Ui['Scale'].prototype.createElement = function(parentEl) {
-  this.el = new Ui['El'](this.width, this.height);
-  this.startAngle = this.options.angleoffset || 0;
-  this.options.radius || (this.options.radius = this.height / 2.5);
-  this.el.create("g");
-  this.el.addClassName('scale');
-  if (this.options.drawScale) {
-    if(!this.options.labels){
-      var step = this.options.anglerange / this.options.steps;
-      var end = this.options.steps + (this.options.anglerange == 360 ? 0 : 1);
-      this.ticks = [];
-      var Shape = this.options.type;
-      for (var i = 0; i < end; i++) {
-        var rect = new Shape(this.options.tickWidth, this.options.tickHeight, this.width / 2,
-          this.options.tickHeight / 2);
-        rect.rotate(this.startAngle + i * step, this.width / 2, this.height / 2);
-        this.el.append(rect);
-        this.ticks.push(rect);
-      }  
-    } 
-  }
-  this.appendTo(parentEl);
-  if (this.options.drawDial) {
-    this.dial();
-  }
-};
-
-Ui['Scale'].prototype.dial = function() {
-  var step = this.options.anglerange / this.options.steps;
-  var min = this.options.min;
-  var dialStep = (this.options.max - min) / this.options.steps;
-  var end = this.options.steps + (this.options.anglerange == 360 ? 0 : 1);
-  this.dials = [];
-  if(!this.options.labels){
-    for (var i = 0; i < end; i++) {
-      var text = new Ui['El'].Text(Math.abs(min + dialStep * i), this.width / 2 - 2.5,
-        this.height / 2 - this.options.radius, 5, 5);
-      this.el.append(text);
-      text.rotate(this.startAngle + i * step, this.width / 2, this.height / 2);
-      this.dials.push(text);
+    
+    handleMouseDown(evt) {
+      // console.log('mouse down');
+      this.clearDrag();
+      evt.preventDefault();
+      this._activeDrag = true;
+      this.startDrag(evt.clientY);
+      // drag update/end listeners
+      document.body.addEventListener('mousemove', this._handlers.mouseMove);
+      document.body.addEventListener('mouseup', this._handlers.mouseUp);
     }
-  } else {
-    step = this.options.anglerange / (this.options.labels.length-1);
-    for(var i=0; i<this.options.labels.length; i++){
-      var label = this.options.labels[i];
-      var text = new Ui['El'].Text(label, this.width / 2 - 2.5,
-        this.height / 2 - this.options.radius, 5, 5);
-      this.el.append(text);
-      text.rotate(this.startAngle + i * step, this.width / 2, this.height / 2);
-      text.attr('text-anchor', 'middle');
-      this.dials.push(text);
+    
+    handleMouseMove(evt) {
+      // console.log('mouse move');
+      if (evt.buttons&1) {
+        this.updateDrag(evt.clientY);
+      } else {
+        this.finalizeDrag(evt.clientY);
+      }
     }
-
-  }
-};
-
-Ui['Scale'].prototype.update = function(percent) {
-  if (this.ticks) {
-    if (this.activeStep) {
-      this.activeStep.attr('class', '');
+    
+    handleMouseUp(evt) {
+      // console.log('mouse up');
+      this.finalizeDrag(evt.clientY);
     }
-    this.activeStep = this.ticks[Math.round(this.options.steps * percent)];
-    this.activeStep.attr('class', 'active');
-  }
-  if (this.dials) {
-    if (this.activeDial) {
-      this.activeDial.attr('class', '');
+    
+    handleMouseWheel(evt) {
+      // console.log('mouse wheel');
+      this._input.focus();
+      this.clearDrag();
+      this._prevValue = parseFloat(this._input.value);
+      this.updateFromDrag(evt.deltaY, this.wheelResistance);
     }
-    this.activeDial = this.dials[Math.round(this.options.steps * percent)];
-    if (this.activeDial) {
-      this.activeDial.attr('class', 'active');
+    
+    handleDoubleClick(evt) {
+      // console.log('double click');
+      this.clearDrag();
+      this._input.value = this.initial;
+      this.updateToInputValue();
+    }
+    
+    handleFocus(evt) {
+      // console.log('focus on');
+      this._container.classList.add('focus-active');
+    }
+    
+    handleBlur(evt) {
+      // console.log('focus off');
+      this._container.classList.remove('focus-active');
+    }
+    
+    // dragging
+    startDrag(yPosition) {
+      this._dragStartPosition = yPosition;
+      this._prevValue = parseFloat(this._input.value);
+      
+      this._input.focus();
+      document.body.classList.add('knob-input__drag-active');
+      this._container.classList.add('drag-active');
+    }
+    
+    updateDrag(yPosition) {
+      var diff = yPosition - this._dragStartPosition;
+      this.updateFromDrag(diff, this.dragResistance);
+      this._input.dispatchEvent(new Event('change'));
+    }
+    
+    finalizeDrag(yPosition) {
+      var diff = yPosition - this._dragStartPosition;
+      this.updateFromDrag(diff, this.dragResistance);
+      this.clearDrag();
+      this._input.dispatchEvent(new Event('change'));
+    }
+    
+    clearDrag() {
+      document.body.classList.remove('knob-input__drag-active');
+      this._container.classList.remove('drag-active');
+      this._activeDrag = false;
+      this._input.dispatchEvent(new Event('change'));
+      // clean up event listeners
+      document.body.removeEventListener('mousemove', this._handlers.mouseMove);
+      document.body.removeEventListener('mouseup', this._handlers.mouseUp);
+      document.body.removeEventListener('touchmove', this._handlers.touchMove);
+      document.body.removeEventListener('touchend', this._handlers.touchEnd);
+      document.body.removeEventListener('touchcancel', this._handlers.touchCancel);
+    }
+    
+    updateToInputValue() {
+      var normVal = this.normalizeValue(parseFloat(this._input.value));
+      this.updateVisuals(normVal);
+    }
+    
+    updateFromDrag(dragAmount, resistance) {
+      var newVal = this.clampValue(this._prevValue - (dragAmount/resistance));
+      this._input.value = newVal;
+      this.updateVisuals(this.normalizeValue(newVal));
+    }
+    
+    // utils
+    clampValue(val) {
+      var min = parseFloat(this._input.min);
+      var max = parseFloat(this._input.max);
+      return Math.min(Math.max(val, min), max);
+    }
+    
+    normalizeValue(val) {
+      var min = parseFloat(this._input.min);
+      var max = parseFloat(this._input.max);
+      return (val-min)/(max-min);
+    }
+  
+    findActiveTouch(touchList) {
+      var i, len, touch;
+      for (i=0, len=touchList.length; i<len; i++)
+        if (this._activeDrag === touchList.item(i).identifier)
+          return touchList.item(i);
+      return null;
+    }
+    
+    // public passthrough methods
+    addEventListener() { this._input.addEventListener.apply(this._input, arguments); }
+    removeEventListener() { this._input.removeEventListener.apply(this._input, arguments); }
+    focus() { this._input.focus.apply(this._input, arguments); }
+    blur() { this._input.blur.apply(this._input, arguments); }
+    
+    // getters/setters
+    get value() {
+      return parseFloat(this._input.value);
+    }
+    set value(val) {
+      this._input.value = val;
+      this.updateToInputValue();
+      this._input.dispatchEvent(new Event('change'));
     }
   }
-};
-
-Ui['Text'] = function() {};
-
-Ui['Text'].prototype = Object.create(Ui.prototype);
-
-Ui['Text'].prototype.createElement = function(parentEl) {
-  this.parentEl = parentEl
-  this.el = new Ui['El']['Text']('', 0, this.height);
-  this.appendTo(parentEl);
-  this.el.center(parentEl);
-};
-
-Ui['Text'].prototype.update = function(percent, value) {
-  this.el.node.textContent = value;
-  this.el.center(this.parentEl);
-};
-
-Ui['El'] = function() {};
-
-Ui['El'].prototype = {
-  svgNS: "http://www.w3.org/2000/svg",
-
-  init: function(width, height, x, y) {
-    this.width = width;
-    this.height = height;
-    this.x = x || 0;
-    this.y = y || 0;
-    this.left = this.x - width / 2;
-    this.right = this.x + width / 2;
-    this.top = this.y - height / 2;
-    this.bottom = this.y + height / 2;
-  },
-  create: function(type, attributes) {
-    this.node = document.createElementNS(this.svgNS, type);
-    for (var key  in attributes) {
-      this.attr(key, attributes[key]);
-    }
-  },
-
-  rotate: function(angle, x, y) {
-    this.attr("transform", "rotate(" + angle + " " + (x || this.x) + " " + (y || this.y ) + ")");
-  },
-
-  attr: function(attributeName, value) {
-    if (value == null) return this.node.getAttribute(attributeName) || '';
-    this.node.setAttribute(attributeName, value);
-  },
-
-  append: function(el) {
-    this.node.appendChild(el.node);
-  },
-
-  addClassName: function(className) {
-    this.attr('class', this.attr('class') + ' ' + className);
-  }
-};
-
-Ui['El'].Triangle = function() {
-  this.init.apply(this, arguments);
-  this.create("polygon", {
-    'points': this.left + ',' + this.bottom + ' ' + this.x + ',' + this.top + ' ' + this.right + ',' + this.bottom
-  });
-};
-
-Ui['El'].Triangle.prototype = Object.create(Ui['El'].prototype);
-
-Ui['El'].Rect = function() {
-  this.init.apply(this, arguments);
-  this.create("rect", {
-    x: this.x - this.width / 2,
-    y: this.y,
-    width: this.width,
-    height: this.height
-  });
-};
-
-Ui['El'].Rect.prototype = Object.create(Ui['El'].prototype);
-
-Ui['El'].Circle = function(radius, x, y) {
-  if (arguments.length == 4) {
-    x = arguments[2];
-    y = arguments[3];
-  }
-  this.init(radius * 2, radius * 2, x, y);
-  this.create("circle", {
-    cx: this.x,
-    cy: this.y,
-    r: radius
-  });
-};
-
-Ui['El'].Circle.prototype = Object.create(Ui['El'].prototype);
-
-Ui['El'].Text = function(text, x, y, width, height) {
-  this.create('text', {
-    x: x,
-    y: y,
-    width: width,
-    height: height
-  });
-  this.node.textContent = text;
-};
-
-Ui['El'].Text.prototype = Object.create(Ui['El'].prototype);
-
-Ui['El'].Text.prototype.center = function(element) {
-  var width = element.getAttribute('width');
-  var height = element.getAttribute('height');
-  this.attr('x', width / 2 - this.node.getBBox().width / 2);
-  this.attr('y', height / 2 + this.node.getBBox().height / 4);
-};
-
-Ui['El'].Arc = function(options) {
-  this.options = options;
-  //when there are lables, do not shift the arc other wise it will be 180 degree off
-  //compared to the labels
-  this.options.angleoffset = (options.angleoffset || 0) - (this.options.labels?0:90);
-
-  this.create('path');
-};
-
-Ui['El'].Arc.prototype = Object.create(Ui['El'].prototype);
-
-Ui['El'].Arc.prototype.setAngle = function(angle) {
-  this.attr('d', this.getCoords(angle));
-};
-
-
-Ui['El'].Arc.prototype.getCoords = function(angle) {
-  var startAngle = this.options.angleoffset;
-  var outerRadius = this.options.outerRadius || this.options.width / 2;
-  var innerRadius = this.options.innerRadius || this.options.width / 2 - this.options.arcWidth;
-  var startAngleDegree = Math.PI * startAngle / 180;
-  var endAngleDegree = Math.PI * (startAngle + angle) / 180;
-  var center = this.options.width / 2;
-
-  var p1 = pointOnCircle(outerRadius, endAngleDegree);
-  var p2 = pointOnCircle(outerRadius, startAngleDegree);
-  var p3 = pointOnCircle(innerRadius, startAngleDegree);
-  var p4 = pointOnCircle(innerRadius, endAngleDegree);
-
-  var path = 'M' + p1.x + ',' + p1.y;
-  var largeArcFlag = ( angle < 180 ? 0 : 1);
-  path += ' A' + outerRadius + ',' + outerRadius + ' 0 ' + largeArcFlag + ' 0 ' + p2.x + ',' + p2.y;
-  path += 'L' + p3.x + ',' + p3.y;
-  path += ' A' + innerRadius + ',' + innerRadius + ' 0 ' + largeArcFlag + ' 1 ' + p4.x + ',' + p4.y;
-  path += 'L' + p1.x + ',' + p1.y;
-  return  path;
-
-  function pointOnCircle(radius, angle) {
-    return {
-      x: center + radius * Math.cos(angle),
-      y: center + radius * Math.sin(angle)
-    };
-  }
-};
-
-export const KnobUi = () => Ui;
-export const KnobCLass = () => Knob;

@@ -1,0 +1,37 @@
+.eq {
+    &.eq__lpf {
+        .indicator-ring-bg {
+            fill: #F7DC6F;
+        }
+    }
+    &.eq__bp--1 {
+        .indicator-ring-bg {
+            fill: #5499C7;
+        }
+    }
+
+    &.eq__bp--2 {
+        .indicator-ring-bg {
+            fill: #57a957;
+        }
+    }
+
+    &.eq__hpf {
+        .indicator-ring-bg {
+            fill: #ca354c;
+        }
+    }
+
+    .indicator-dot {
+        fill: black;
+        r: 2.5;
+        cy: 28;
+    }
+
+    .eq__label {
+        text-align: center;
+        font-size: 10px;
+        padding: 6px 4px 2px;
+    }
+}
+

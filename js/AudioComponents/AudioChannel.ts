@@ -4,8 +4,11 @@ import { PTGainNode } from "../AudioProcessors/GainNode";
 import { PTPannerNode } from "../AudioProcessors/PannerNode";
 import { PTFaderMeter } from "../AudioProcessors/FaderMeter";
 import { Events } from "../Helpers/Events";
-
-import { KnobFactory } from "../UIComponents/KnobFactory";
+import { KnobInput } from "../UIComponents/Knob";
+import { KnobVisual } from "../UIComponents/KnobVisual";
+import { HighPassFilter } from "../AudioProcessors/HighPass";
+import { LowPassFilter } from "../AudioProcessors/LowPass"
+import { BandPassFilter } from "../AudioProcessors/BandPassFilter";
 
 export class AudioChannel extends Channel {
     public name: string;
@@ -21,7 +24,12 @@ export class AudioChannel extends Channel {
     public muteButton: Element;
     public soloButton: Element;
     public audioElement: HTMLAudioElement;
-    public test: any;
+    public knobTemplate: string;
+
+    public hpf: HighPassFilter;
+    public lpf: LowPassFilter;
+    public bpf1: BandPassFilter;
+    public bpf2: BandPassFilter;
 
     constructor(context, soundSrc, name){
         super(context);
@@ -30,18 +38,63 @@ export class AudioChannel extends Channel {
         this.audioElement.crossOrigin = "anonymous";
         this.audioElement.autoplay = false;
         this.audioElement.preload = "auto";
-        this.name = name;
+        this.name = name.split("/")[1].split("_")[1];
         this.$container = $("div.channel--container");
         this.source = this.context.createMediaElementSource(this.audioElement);
         this.isSterio = null;
-
-        this.test = KnobFactory.create();
-        console.log(KnobFactory.create());
+        this.knobTemplate = KnobInput.getTemplate();
     }
 
     get template() {
         return $(`
             <div class="channel" data-id="${this.id}">
+
+                <div class="eq eq__lpf">
+                    <p class="eq__label">HIGHS</p>
+                    <div class="eq1--freq knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                    <div class="eq1--gain knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                </div>
+
+                <div class="eq eq__bp--1">
+                    <p class="eq__label">UPPER MIDS</p>
+                    <div class="eq1--freq knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                    <div class="eq1--gain knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                    <div class="eq1--q knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                </div>
+
+                <div class="eq eq__bp--2">
+                    <p class="eq__label">LOWER MIDS</p>
+                    <div class="eq1--freq knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                    <div class="eq1--gain knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                    <div class="eq1--q knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                </div>
+
+                <div class="eq eq__hpf">
+                    <p class="eq__label">LOWS</p>
+                    <div class="eq1--freq knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                    <div class="eq1--gain knob-input">
+                        ${this.knobTemplate}
+                    </div>
+                </div>
+
                 <div class="channel--fader">
                     <div class="channel--gain1">
                         <input type="range" class="channel--gain1-range" min="0" max="5" step="0.01" value="1"/>
@@ -51,6 +104,7 @@ export class AudioChannel extends Channel {
                         <canvas id="meter--cont" height="133" width="10"></canvas>
                     </div>
                 </div>
+
                 <div class="channel--pan1">
                     <input class="channel--pan-input" type="number" min="-1" max="1" step="0.1" defualtValue="0" />
                 </div>
@@ -75,19 +129,24 @@ export class AudioChannel extends Channel {
         }
     }
 
+    templateSelector(sel: string) {
+        return document.querySelector((`[data-id="${this.id}"] ${sel}`));
+    }
+
     initializeTemplate() {
         this.renderTemplate();
+
         this.gain = new PTGainNode({
-            element: document.querySelector(`[data-id="${this.id}"] .channel--gain1-range`),
+            element: this.templateSelector(".channel--gain1-range"),
             initialGain: 1
         });
-
+        
         this.pan = new PTPannerNode({
-            element: document.querySelector(`[data-id="${this.id}"] input.channel--pan-input`)
+            element: this.templateSelector("input.channel--pan-input")
         });
-
+        
         this.meter = new PTFaderMeter({
-            element: document.querySelector(`[data-id="${this.id}"] #meter--cont`)
+            element: this.templateSelector("#meter--cont")
         });
 
         this.muteButton = document.querySelector(`[id="mm-${this.id}"]`);
@@ -106,6 +165,82 @@ export class AudioChannel extends Channel {
                 Events.emit("track/unsolo");
             }
         });
+
+        // Initialize knobs
+        // High Pass Filter
+        var hpfFreq = new KnobInput(this.templateSelector(".eq__hpf .eq1--freq"), {
+            min: 30,
+            max: 450,
+            initial: 0
+        });
+        var hpfGain = new KnobInput(this.templateSelector(".eq__hpf .eq1--gain"), {
+            min: -10,
+            max: 10,
+            initial: 0
+        });
+
+        // Low pass Filter
+        var lpfFreq = new KnobInput(this.templateSelector(".eq__lpf .eq1--freq"), {
+            min: 5000,
+            max: 20000,
+            initial: 20000
+        });
+        var lpfGain = new KnobInput(this.templateSelector(".eq__lpf .eq1--gain"), {
+            min: -10,
+            max: 10,
+            initial: 0
+        });
+        
+        // Band Pass 1
+        var bp1Freq = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--freq"), {
+            min: 200,
+            max: 2500
+        });
+        var bp1Gain = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--gain"), {
+            min: -10,
+            max: 10,
+            initial: 0
+        });
+        var bp1Q = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--q"), {
+            min: -10,
+            max: 10
+        });
+
+        // Band Pass 2
+        var bp2Freq = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--freq"), {
+            min: 500,
+            max: 7000
+        });
+        var bp2Gain = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--gain"), {
+            min: -10,
+            max: 10,
+            initial: 0
+        });
+        var bp2Q = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--q"), {
+            min: -10,
+            max: 10
+        });
+
+        // EQ Section
+        // Low Pass Filter
+        this.hpf = new HighPassFilter({
+            frequencyElement: hpfFreq._input,
+            gainElement: hpfGain._input
+        });
+        this.lpf = new LowPassFilter({
+            frequencyElement: lpfFreq._input,
+            gainElement: lpfGain._input
+        });
+        this.bpf1 = new BandPassFilter({
+            frequencyElement: bp1Freq._input,
+            gainElement: bp1Freq._input,
+            qElement: bp1Q._input
+        });
+        this.bpf2 = new BandPassFilter({
+            frequencyElement: bp2Freq._input,
+            gainElement: bp2Freq._input,
+            qElement: bp2Q._input
+        });
     }
 
     renderTemplate() {
@@ -120,7 +255,11 @@ export class AudioChannel extends Channel {
         source.connect(this.gain.node);
         this.gain.node.connect(this.pan.node);
         this.pan.node.connect(this.meter.node);
-        this.meter.node.connect(CONTEXT.destination);
+        this.meter.node.connect(this.lpf.node);
+        this.lpf.node.connect(this.bpf1.node);
+        this.bpf1.node.connect(this.bpf2.node);
+        this.bpf2.node.connect(this.hpf.node);
+        this.hpf.node.connect(CONTEXT.destination);
 
         this.audioElement.play();
         this.meter.draw();

@@ -15,7 +15,10 @@ gulp.task('build-css', function(){
 });
 
 gulp.task('build-js', function () {
-    return browserify({entries: './js/scripts.ts', debug: true})
+    return browserify({
+            entries: './js/scripts.ts',
+            debug: true
+        })
         .transform(babelify, {
             presets: ["env"]
         })

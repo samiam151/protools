@@ -1,4 +1,6 @@
 // Globals
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed');
+
 @import "globals/_globals.scss";
 @import "./globals/_vars.scss";
 
@@ -8,3 +10,5 @@
 // Components
 @import "components/_channelContainer.scss";
 @import "components/_channel.scss";
+@import "components/_knob.scss";
+@import "components/_eq.scss";

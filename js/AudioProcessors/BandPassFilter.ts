@@ -1,19 +1,21 @@
 import { CONTEXT } from "../AudioComponents/Context";
-import { ILimitFilter } from "./ILimitFilter";
 
-export class HighPassFilter implements ILimitFilter {
+
+export class BandPassFilter {
     public node: BiquadFilterNode;
     // public boundElement: Element;
     public frequencyElement: Element;
     public gainElement: Element;
+    public qElement: Element;
     
     constructor(args){
         this.node = CONTEXT.createBiquadFilter();
-        this.node.type = "highpass";
-        this.node.frequency.value = 60;
+        this.node.type = "peaking";
+        this.node.frequency.value = args.freq ? args.freq : 60;
         // this.boundElement = args.element ? args.element : null;
         this.frequencyElement = args.frequencyElement ? args.frequencyElement : null;
         this.gainElement = args.gainElement ? args.gainElement : null;
+        this.qElement =  args.qElement; 
 
         this.frequencyElement.addEventListener("change", (e) => {
             this.setFrequency(e.target['value']);
@@ -21,6 +23,10 @@ export class HighPassFilter implements ILimitFilter {
 
         this.gainElement.addEventListener("change", (e) => {
             this.setGain(e.target['value']);
+        });
+
+        this.qElement.addEventListener("change", (e) => {
+            this.setFrequency(e.target['value']);
         });
     }
 
