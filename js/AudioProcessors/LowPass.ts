@@ -10,8 +10,8 @@ export class LowPassFilter implements ILimitFilter {
     
     constructor(args){
         this.node = CONTEXT.createBiquadFilter();
-        this.node.type = "lowpass";
-        this.node.frequency.value = 20000;
+        this.node.type = "highshelf";
+        this.node.frequency.value = 60;
         // this.boundElement = args.element ? args.element : null;
         this.frequencyElement = args.frequencyElement ? args.frequencyElement : null;
         this.gainElement = args.gainElement ? args.gainElement : null;

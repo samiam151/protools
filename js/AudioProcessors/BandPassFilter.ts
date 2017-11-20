@@ -3,19 +3,25 @@ import { CONTEXT } from "../AudioComponents/Context";
 
 export class BandPassFilter {
     public node: BiquadFilterNode;
-    // public boundElement: Element;
-    public frequencyElement: Element;
-    public gainElement: Element;
-    public qElement: Element;
+    // private boundElement: Element;
+    private frequencyElement: Element;
+    private gainElement: Element;
+    private qElement: Element;
+    private indicator: Element;
+    private element: Element;
+    private indicatorElement: Element;
     
     constructor(args){
         this.node = CONTEXT.createBiquadFilter();
         this.node.type = "peaking";
-        this.node.frequency.value = args.freq ? args.freq : 60;
+        this.element = args.boundElement;
+        this.node.frequency.value = args.initialFrequency ? args.initialFrequency : 60;
         // this.boundElement = args.element ? args.element : null;
         this.frequencyElement = args.frequencyElement ? args.frequencyElement : null;
         this.gainElement = args.gainElement ? args.gainElement : null;
+        this.node.gain.value = 0;
         this.qElement =  args.qElement; 
+        this.indicatorElement = this.element.querySelector(".indicator--span");
 
         this.frequencyElement.addEventListener("change", (e) => {
             this.setFrequency(e.target['value']);
@@ -26,7 +32,7 @@ export class BandPassFilter {
         });
 
         this.qElement.addEventListener("change", (e) => {
-            this.setFrequency(e.target['value']);
+            this.setQ(e.target['value']);
         });
     }
 
@@ -37,6 +43,11 @@ export class BandPassFilter {
 
     setGain(value: number) {
         this.node.gain.value = value;
+        console.log(this.node.gain.value);
+    }
+
+    setQ(value: number) {
+        this.node.Q.value = value;
         console.log(this.node.gain.value);
     }
  }

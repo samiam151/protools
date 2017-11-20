@@ -130,7 +130,8 @@ export class AudioChannel extends Channel {
     }
 
     templateSelector(sel: string) {
-        return document.querySelector((`[data-id="${this.id}"] ${sel}`));
+        let el = document.querySelector((`[data-id="${this.id}"] ${sel}`));
+        return el;
     }
 
     initializeTemplate() {
@@ -168,58 +169,46 @@ export class AudioChannel extends Channel {
 
         // Initialize knobs
         // High Pass Filter
-        var hpfFreq = new KnobInput(this.templateSelector(".eq__hpf .eq1--freq"), {
+        let gainSettings = {
+            min: -40,
+            max: 40,
+            initial: 0
+        }
+        let qSettings = {
+            min: .0001,
+            max: 1000,
+            initial: 0
+        }
+        let hpfFreq = new KnobInput(this.templateSelector(".eq__hpf .eq1--freq"), {
             min: 30,
             max: 450,
             initial: 0
         });
-        var hpfGain = new KnobInput(this.templateSelector(".eq__hpf .eq1--gain"), {
-            min: -10,
-            max: 10,
-            initial: 0
-        });
+        let hpfGain = new KnobInput(this.templateSelector(".eq__hpf .eq1--gain"), gainSettings);
 
         // Low pass Filter
-        var lpfFreq = new KnobInput(this.templateSelector(".eq__lpf .eq1--freq"), {
+        let lpfFreq = new KnobInput(this.templateSelector(".eq__lpf .eq1--freq"), {
             min: 5000,
             max: 20000,
             initial: 20000
         });
-        var lpfGain = new KnobInput(this.templateSelector(".eq__lpf .eq1--gain"), {
-            min: -10,
-            max: 10,
-            initial: 0
-        });
+        let lpfGain = new KnobInput(this.templateSelector(".eq__lpf .eq1--gain"), gainSettings);
         
         // Band Pass 1
-        var bp1Freq = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--freq"), {
+        let bp1Freq = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--freq"), {
             min: 200,
             max: 2500
         });
-        var bp1Gain = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--gain"), {
-            min: -10,
-            max: 10,
-            initial: 0
-        });
-        var bp1Q = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--q"), {
-            min: -10,
-            max: 10
-        });
+        let bp1Gain = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--gain"), gainSettings);
+        let bp1Q = new KnobInput(this.templateSelector(".eq__bp--1 .eq1--q"), qSettings);
 
         // Band Pass 2
-        var bp2Freq = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--freq"), {
+        let bp2Freq = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--freq"), {
             min: 500,
             max: 7000
         });
-        var bp2Gain = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--gain"), {
-            min: -10,
-            max: 10,
-            initial: 0
-        });
-        var bp2Q = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--q"), {
-            min: -10,
-            max: 10
-        });
+        let bp2Gain = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--gain"), gainSettings);
+        let bp2Q = new KnobInput(this.templateSelector(".eq__bp--2 .eq1--q"), qSettings);
 
         // EQ Section
         // Low Pass Filter
@@ -233,13 +222,17 @@ export class AudioChannel extends Channel {
         });
         this.bpf1 = new BandPassFilter({
             frequencyElement: bp1Freq._input,
-            gainElement: bp1Freq._input,
-            qElement: bp1Q._input
+            gainElement: bp1Gain._input,
+            qElement: bp1Q._input,
+            initialFrequency: 1000,
+            boundElement: bp1Freq._container
         });
         this.bpf2 = new BandPassFilter({
             frequencyElement: bp2Freq._input,
-            gainElement: bp2Freq._input,
-            qElement: bp2Q._input
+            gainElement: bp2Gain._input,
+            qElement: bp2Q._input,
+            initialFrequency: 3000,
+            boundElement: bp2Freq._container
         });
     }
 

@@ -18,6 +18,7 @@ export class KnobInput {
   public _activeDrag: any;
   public _dragStartPosition: any;
   public _prevValue: any;
+  public _indicator: Element;
 
     constructor(containerElement, options) {
       if (!options) {
@@ -53,6 +54,8 @@ export class KnobInput {
       this._input.classList.add('knob-input__input');
       this._visualElement = this._container.querySelector(`.${this.visualElementClass}`);
       this._visualElement.classList.add('knob-input__visual');
+      this._indicator = this._container.querySelector(".indicator--span");
+      console.log(this._indicator);
       
       // visual context
       this._visualContext = { element: this._visualElement };
@@ -86,12 +89,14 @@ export class KnobInput {
       this._input.addEventListener('dblclick', this._handlers.doubleClick);
       this._input.addEventListener('focus', this._handlers.focus);
       this._input.addEventListener('blur', this._handlers.blur);
+      this._indicator.innerHTML = (+this._input.value).toFixed(2).toString();
       // init
       this.updateToInputValue();
     }
     
     static getTemplate() {
         return `<div class="fl-studio-envelope__knob">
+          
           <svg class="knob-input__visual" viewBox="0 0 40 40">
               <circle class="focus-indicator" cx="20" cy="20" r="18" fill="#4eccff" filter="url(#glow)"></circle>
               <circle class="indicator-ring-bg" cx="20" cy="20" r="18" fill="#353b3f" stroke="#23292d"></circle>
@@ -105,6 +110,7 @@ export class KnobInput {
               <circle class="indicator-dot" cx="20" cy="30" r="1.5" fill="#4eccff"></circle>
               </g>
           </svg>
+          <span class="indicator--span"></span>
       </div>`
     }
 
@@ -123,6 +129,7 @@ export class KnobInput {
     handleInputChange(evt) {
       // console.log('input change');
       this.updateToInputValue();
+      this._indicator.innerHTML = (+evt.target.value).toFixed(2).toString();
     }
     
     handleTouchStart(evt) {
