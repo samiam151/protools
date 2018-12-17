@@ -27,11 +27,11 @@ export class LowPassFilter implements ILimitFilter {
 
     setFrequency(value: number) {
         this.node.frequency.value = value;
-        console.log(this.node.frequency.value);
+        // console.log(this.node.frequency.value);
     }
 
     setGain(value: number) {
         this.node.gain.value = value;
-        console.log(this.node.gain.value);
+        // console.log(this.node.gain.value);
     }
  }

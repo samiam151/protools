@@ -59,7 +59,7 @@ export class AudioChannel extends Channel {
                     </div>
                 </div>
 
-                <div class="eq eq__bp--1">
+                <div class="eq eq__bp--2">
                     <p class="eq__label">UPPER MIDS</p>
                     <div class="eq1--freq knob-input">
                         ${this.knobTemplate}
@@ -72,7 +72,7 @@ export class AudioChannel extends Channel {
                     </div>
                 </div>
 
-                <div class="eq eq__bp--2">
+                <div class="eq eq__bp--1">
                     <p class="eq__label">LOWER MIDS</p>
                     <div class="eq1--freq knob-input">
                         ${this.knobTemplate}

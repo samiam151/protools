@@ -10,8 +10,6 @@ export class ChannelList {
 
         Events.subscribe("track/solo", (pl) => {
             this.tracks.forEach((track: AudioChannel) => {
-                console.log(pl.trackToLeave);
-                console.log(track.id);
                 if (track.id != pl.trackToLeave) {
                     track.toggleMute(true);
                 }

@@ -39,7 +39,7 @@ function init(){
     // });
     
     getNames(tempBucket).then(urls => {
-        console.log(urls);
+        // console.log(urls);
         urls = urls.filter(url => {
             return url['url'].slice("-3") === "wav";
         });
@@ -48,7 +48,7 @@ function init(){
             initialChannelList.addTrack(new AudioChannel(CONTEXT, url['url'], url['name']));
         });
 
-        console.log(initialChannelList.tracks);
+        // console.log(initialChannelList.tracks);
 
         initialChannelList.renderTracks();
 
@@ -65,7 +65,7 @@ function getNames(bucket): Promise<object[]> {
                 bucket: bucket
             }
         }).then(data => {
-            console.log(data);
+            // console.log(data);
             let urls = data.data.names.map(name => {
                 return {
                     url: `http://${bucket}.s3-external-1.amazonaws.com/${name}`,

@@ -1,6 +1,6 @@
 {
   "name": "protools",
-  "version": "1.0.0",
+  "version": "8.9.3",
   "description": "",
   "main": "./server/server.js",
   "dependencies": {},
@@ -43,11 +43,12 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "startWatch": "nodemon server/server.js --config ./nodemon.json",
-    "server": "node ./server/server.js",
+    "start": "nodemon server/server.js --config ./nodemon.json",
     "build": "node run build-js"
   },
   "author": "",
   "license": "ISC"
+  "engines" : {
+    "node": "8.9.3"
+  }
 }
